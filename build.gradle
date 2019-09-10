@@ -1,0 +1,30 @@
+plugins {
+    id 'java-library'
+    id 'idea'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation 'commons-cli:commons-cli:1.4'
+    testImplementation 'junit:junit:4.12'
+}
+
+task runExample(type: JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    main = project.hasProperty("mainClass") ?
+            project.property("mainClass") :
+            project.hasProperty("main") ?
+            project.property("main") :
+            project.hasProperty("mc") ?
+            project.property("mc") :
+            "Intro"
+    if (project.hasProperty("jvmArgs")) {
+        jvmArgs(project.property("jvmArgs").split() as List)
+    }
+    standardInput = System.in
+    standardOutput = System.out
+    systemProperties(System.getProperties())
+}
