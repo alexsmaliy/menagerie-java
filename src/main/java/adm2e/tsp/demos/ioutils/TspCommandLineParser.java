@@ -14,6 +14,14 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+// The long and the short of it, commons-cli command line parsing is both verbose
+// and not very flexible. It's awkward to express that some options are required
+// when some other option or value is present. A common suggestion is multiple
+// parsing passes. But that introduces its own frustrations, as the default
+// parser does not make it possible to check only for a subset of the provided
+// options without either dumping the rest of the command line into a "the rest"
+// object or throwing an exception. This also means that being able to parse
+// options correctly depends on the order in which they are provided. Gross!
 public final class TspCommandLineParser {
 
     private static final CommandLineParser DEFAULT_PARSER = new DefaultParser();
@@ -150,30 +158,36 @@ public final class TspCommandLineParser {
 
     private static void greedyModeUsage() {
         String command = DemoTspSolver.class.getName()
-            + "INPUT_FILE --"
+            + " INPUT_FILE --"
             + MODE_OPTION.getLongOpt()
             + " "
             + Heuristic.GREEDY.name();
+        Options tempOptions = new Options();
+        tempOptions.addOption(NUM_TRIALS_OPTION);
         HELP_FORMATTER.printHelp(
             120, // width
             command,
             null, // header
-            getGreedyModeOptions(),
+            tempOptions,
             null, // footer
             true); // do print usage example
     }
 
     private static void annealingModeUsage() {
         String command = DemoTspSolver.class.getName()
-            + "INPUT_FILE --"
+            + " INPUT_FILE --"
             + MODE_OPTION.getLongOpt()
             + " "
             + Heuristic.ANNEALING.name();
+        Options tempOptions = new Options();
+        tempOptions.addOption(NUM_TRIALS_OPTION);
+        tempOptions.addOption(ANNEALING_OPTION_REDUCE_TEMP_AFTER);
+        tempOptions.addOption(ANNEALING_OPTION_STOP_AFTER);
         HELP_FORMATTER.printHelp(
             120, // width
             command,
             null, // header
-            getAnnealingModeOptions(),
+            tempOptions,
             null, // footer
             true); // do print usage example
     }
