@@ -15,12 +15,6 @@ import static adm2e.tsp.rules.DecisionRule.Decision.REJECT;
  * is stuck after an uninterrupted sequence of same-cost iterations.
  */
 public final class AnnealingRule implements DecisionRule {
-    // parameter defaults
-    private static final double INITIAL_TEMPERATURE = 1.0/32.0;
-    private static final double TEMP_REDUCTION_FACTOR = 0.5;
-    private static final double TEMP_LOWER_THRESHOLD = 16.0 * Double.MIN_VALUE;
-    private static final double RELATIVE_COST_CHANGE_LOWER_THRESHOLD = 0.001;
-
     // parameters for this instance
     private final int consecutiveAcceptsBeforeTempReduced;
     private final int maxConsecutiveSameCurrentCost;
@@ -36,7 +30,7 @@ public final class AnnealingRule implements DecisionRule {
                           int maxConsecutiveSameCurrentCost) {
         this.consecutiveAcceptsBeforeTempReduced = consecutiveAcceptsBeforeTempReduced;
         this.maxConsecutiveSameCurrentCost = maxConsecutiveSameCurrentCost;
-        this.currentTemperature = INITIAL_TEMPERATURE;
+        this.currentTemperature = AnnealingRuleParamDefaults.INITIAL_TEMPERATURE;
         this.consecutiveAccepts = 0;
         this.lastSeenCurrentCost = Double.MAX_VALUE;
         this.consecutiveSameCurrentCost = 0;
@@ -54,7 +48,7 @@ public final class AnnealingRule implements DecisionRule {
             if (consecutiveAccepts > consecutiveAcceptsBeforeTempReduced) {
                 System.out.println("Reducing temperature!");
                 consecutiveAccepts = 0;
-                currentTemperature = currentTemperature * TEMP_REDUCTION_FACTOR;
+                currentTemperature = currentTemperature * AnnealingRuleParamDefaults.TEMP_REDUCTION_FACTOR;
             }
             return ACCEPT;
         } else {
@@ -64,7 +58,7 @@ public final class AnnealingRule implements DecisionRule {
 
     @Override
     public boolean searchBudgetExceeded() {
-        boolean exceeded = currentTemperature < TEMP_LOWER_THRESHOLD;
+        boolean exceeded = currentTemperature < AnnealingRuleParamDefaults.TEMP_LOWER_THRESHOLD;
         if (exceeded) System.out.println("Temperature below threshold!");
         return exceeded;
     }
@@ -77,7 +71,7 @@ public final class AnnealingRule implements DecisionRule {
             return false;
         }
         double relativeDelta = (lastSeenCurrentCost - currentCost) / currentCost;
-        if (relativeDelta < RELATIVE_COST_CHANGE_LOWER_THRESHOLD) {
+        if (relativeDelta < AnnealingRuleParamDefaults.RELATIVE_COST_CHANGE_LOWER_THRESHOLD) {
             consecutiveSameCurrentCost++;
         }
         boolean stuck = consecutiveSameCurrentCost >= maxConsecutiveSameCurrentCost;

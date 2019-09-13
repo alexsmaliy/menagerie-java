@@ -1,6 +1,7 @@
 package adm2e.tsp.demos.ioutils;
 
 import adm2e.tsp.demos.DemoTspSolver;
+import adm2e.tsp.rules.AnnealingRuleParamDefaults;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -27,18 +28,6 @@ public final class TspCommandLineParser {
     private static final CommandLineParser DEFAULT_PARSER = new DefaultParser();
     private static final HelpFormatter HELP_FORMATTER = new HelpFormatter();
 
-    // Metaparameter: the number of consecutive times the decision rule accepts a move
-    // before we make the acceptance criterion more strict. Note tht at the start of
-    // the search, we accept almost any move, so, at least initially, there are many
-    // consecutive acceptances. Also, every time we accept a worse solution at random,
-    // several subsequent solutions will also be improvements, providing opportunities
-    // to reduce the temperature even late in the search.
-    private static final int CONSECUTIVE_ACCEPTS_BEFORE_TEMP_REDUCED = 20;
-    // Metaparameter: how many search iterations must result in approximately the same
-    // outcome (within a certain relative tolerance) before we declare the search done.
-    private static final int MAX_CONSECUTIVE_SAME_CURRENT_COST = 5;
-    // The number of times we start in a random position in the search space. This demo
-    // returns the best result among all attempts undertaken.
     private static final int DEFAULT_NUM_TRIALS = 1;
 
     private static final Option MODE_OPTION = Option.builder()
@@ -103,6 +92,10 @@ public final class TspCommandLineParser {
         return options;
     }
 
+    // Another peculiarity of commons-cli is that validating a numerical option
+    // requires setting `type(Number.class)`, rather than Integer.class or whatever.
+    // Then, `getParsedOptionValue()` will return either a Long or Double as Object,
+    // requiring tedious casting.
     public static SettingsForMode parse(String[] args) {
         CommandLine firstPass;
         try {
@@ -128,10 +121,10 @@ public final class TspCommandLineParser {
                             : DEFAULT_NUM_TRIALS);
                         int reduceTempAfter = (int) (secondPass.hasOption(ANNEALING_OPTION_REDUCE_TEMP_AFTER.getOpt())
                             ? (long) secondPass.getParsedOptionValue(ANNEALING_OPTION_REDUCE_TEMP_AFTER.getOpt())
-                            : CONSECUTIVE_ACCEPTS_BEFORE_TEMP_REDUCED);
+                            : AnnealingRuleParamDefaults.CONSECUTIVE_ACCEPTS_BEFORE_TEMP_REDUCED);
                         int stopAfter = (int) (secondPass.hasOption(ANNEALING_OPTION_STOP_AFTER.getOpt())
                             ? (long) secondPass.getParsedOptionValue(ANNEALING_OPTION_STOP_AFTER.getOpt())
-                            : MAX_CONSECUTIVE_SAME_CURRENT_COST);
+                            : AnnealingRuleParamDefaults.MAX_CONSECUTIVE_SAME_CURRENT_COST);
                         Path inputFile = new File(secondPass.getArgs()[0]).toPath();
                         return new SettingsForMode.Annealing(numTrials, inputFile, reduceTempAfter, stopAfter);
                     } catch (ParseException e) {
