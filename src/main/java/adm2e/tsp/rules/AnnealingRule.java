@@ -19,6 +19,7 @@ public final class AnnealingRule implements DecisionRule {
     private static final double INITIAL_TEMPERATURE = 1.0/32.0;
     private static final double TEMP_REDUCTION_FACTOR = 0.5;
     private static final double TEMP_LOWER_THRESHOLD = 16.0 * Double.MIN_VALUE;
+    private static final double RELATIVE_COST_CHANGE_LOWER_THRESHOLD = 0.001;
 
     // parameters for this instance
     private final int consecutiveAcceptsBeforeTempReduced;
@@ -76,7 +77,7 @@ public final class AnnealingRule implements DecisionRule {
             return false;
         }
         double relativeDelta = (lastSeenCurrentCost - currentCost) / currentCost;
-        if (relativeDelta < 0.0005) {
+        if (relativeDelta < RELATIVE_COST_CHANGE_LOWER_THRESHOLD) {
             consecutiveSameCurrentCost++;
         }
         boolean stuck = consecutiveSameCurrentCost >= maxConsecutiveSameCurrentCost;

@@ -26,9 +26,8 @@ public final class TspIoUtils {
     /**
      * Streams lines from specified input.
      */
-    public static Stream<String> readRawInput(String path) throws IOException {
-        Path inputFile = Path.of(path);
-        return Files.newBufferedReader(inputFile)
+    public static Stream<String> readRawInput(Path path) throws IOException {
+        return Files.newBufferedReader(path)
                     .lines()
                     .filter(s -> !s.isEmpty());
     }
@@ -45,7 +44,7 @@ public final class TspIoUtils {
      * Tokenizes lines into vertex labels and distances. Builds up
      * a set of vertex labels and a map of vertex->vertex->distance.
      */
-    public static void processLine(String line,
+    private static void processLine(String line,
                                    Set<String> labelCollector,
                                    Map<String, Map<String, Double>> distances) {
         // Tokenize line on whitespace.
@@ -77,7 +76,7 @@ public final class TspIoUtils {
     }
 
     /**
-     *
+     * A (symmetric) adjacency matrix with weights between nodes <i, j>.
      */
     public static double[][] buildEdgeWeightMatrix(String[] labels,
                                                    Map<String, Map<String, Double>> distances) {
