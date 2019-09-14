@@ -14,9 +14,9 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import static adm2e.tsp.rules.AnnealingRuleParamDefaults.CONSECUTIVE_ACCEPTS_BEFORE_TEMP_REDUCED;
-import static adm2e.tsp.rules.AnnealingRuleParamDefaults.DEFAULT_INITIAL_TEMPERATURE;
-import static adm2e.tsp.rules.AnnealingRuleParamDefaults.MAX_CONSECUTIVE_SAME_CURRENT_COST;
+import static adm2e.tsp.rules.AnnealingRuleParamDefaults.DEFAULT_REDUCE_TEMP_AFTER;
+import static adm2e.tsp.rules.AnnealingRuleParamDefaults.DEFAULT_INITIAL_TEMP;
+import static adm2e.tsp.rules.AnnealingRuleParamDefaults.DEFAULT_STOP_AFTER;
 import static adm2e.tsp.rules.AnnealingRuleParamDefaults.DEFAULT_TEMP_REDUCTION_FACTOR;
 
 // The long and the short of it, commons-cli command line parsing is both verbose
@@ -48,7 +48,7 @@ public final class TspCommandLineParser {
         .argName("num")
         .desc(String.format(
             "reduce temperature after this many consecutively accepted state transitions (default: %d)",
-            CONSECUTIVE_ACCEPTS_BEFORE_TEMP_REDUCED))
+            DEFAULT_REDUCE_TEMP_AFTER))
         .hasArg(true)
         .longOpt("reduce-after")
         .numberOfArgs(1)
@@ -60,7 +60,7 @@ public final class TspCommandLineParser {
         .argName("num")
         .desc(String.format(
             "stop after this many consecutive iterations with no improvement in cost (default: %d)",
-            MAX_CONSECUTIVE_SAME_CURRENT_COST))
+            DEFAULT_STOP_AFTER))
         .hasArg(true)
         .longOpt("stop-after")
         .numberOfArgs(1)
@@ -72,7 +72,7 @@ public final class TspCommandLineParser {
         .argName("num")
         .desc(String.format(
             "starting system temperature (default: %.1f)",
-            DEFAULT_INITIAL_TEMPERATURE))
+            DEFAULT_INITIAL_TEMP))
         .hasArg(true)
         .longOpt("init-temp")
         .numberOfArgs(1)
@@ -155,15 +155,15 @@ public final class TspCommandLineParser {
                         int reduceTempAfter = getAsInt(
                             secondPass,
                             ANNEALING_OPTION_REDUCE_TEMP_AFTER,
-                            CONSECUTIVE_ACCEPTS_BEFORE_TEMP_REDUCED);
+                            DEFAULT_REDUCE_TEMP_AFTER);
                         int stopAfter = getAsInt(
                             secondPass,
                             ANNEALING_OPTION_STOP_AFTER,
-                            MAX_CONSECUTIVE_SAME_CURRENT_COST);
+                            DEFAULT_STOP_AFTER);
                         double initTemp = getAsDouble(
                             secondPass,
                             ANNEALING_MODE_INITIAL_TEMP,
-                            DEFAULT_INITIAL_TEMPERATURE);
+                            DEFAULT_INITIAL_TEMP);
                         double coolFactor = getAsDouble(
                             secondPass,
                             ANNEALING_MODE_TEMP_REDUCTION_FACTOR,

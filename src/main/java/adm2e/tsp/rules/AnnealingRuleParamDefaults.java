@@ -8,15 +8,14 @@ public final class AnnealingRuleParamDefaults {
     // acceptances. Also, every time we accept a worse solution at random, several
     // subsequent solutions will also be improvements, providing opportunities to
     // reduce the temperature even late in the search.
-    public static final int CONSECUTIVE_ACCEPTS_BEFORE_TEMP_REDUCED = 20;
+    public static final int DEFAULT_REDUCE_TEMP_AFTER = 20;
     // How many search iterations must result in approximately the same outcome
     // (within a certain relative tolerance) before we declare the search done.
-    public static final int MAX_CONSECUTIVE_SAME_CURRENT_COST = 5;
-    // Not configurable via the command line. The initial temperature of the system.
-    public static final double DEFAULT_INITIAL_TEMPERATURE = 1.0;
-    // Not configurable via the command line. The temp of the system is reduced by this
-    // multiplicative factor after CONSECUTIVE_ACCEPTS_BEFORE_TEMP_REDUCED consecutive
-    // successful moves.
+    public static final int DEFAULT_STOP_AFTER = 5;
+    // The initial temperature of the system.
+    public static final double DEFAULT_INITIAL_TEMP = 1.0;
+    // The temp of the system is reduced by this multiplicative factor after
+    // DEFAULT_REDUCE_TEMP_AFTER consecutive successful moves.
     public static final double DEFAULT_TEMP_REDUCTION_FACTOR = 0.5;
     // Not configurable via the command line. The solver stops iterating if temperature
     // falls below this threshold.
