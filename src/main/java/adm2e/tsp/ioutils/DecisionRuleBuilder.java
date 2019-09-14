@@ -6,6 +6,8 @@ import adm2e.tsp.rules.GreedyRule;
 
 import java.util.function.Supplier;
 
+// A visitor that configures decision rules based on settings objects.
+// Different rules have different sets of configurable parameters.
 public class DecisionRuleBuilder {
     private static final Supplier<DecisionRule> GREEDY_RULE_SUPPLIER = () -> GreedyRule.INSTANCE;
 

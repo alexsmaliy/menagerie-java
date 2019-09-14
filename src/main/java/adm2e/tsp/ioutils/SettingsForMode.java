@@ -5,6 +5,8 @@ import adm2e.tsp.rules.DecisionRule;
 import java.nio.file.Path;
 import java.util.function.Supplier;
 
+// A little hierarchy of POJOs representing parsed command line options
+// for different TSP solver modes.
 public abstract class SettingsForMode {
     private final int numTrials;
     private final Path inputFile;
