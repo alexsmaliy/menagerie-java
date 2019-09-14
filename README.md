@@ -35,7 +35,7 @@ program arguments.
 Alternatively, demos can be run using Gradle from the command line,
 albeit with a little ceremony. From the root of the repo, execute
 ```shell
-    gradlew runExample -Pmain=CLASS
+    ./gradlew runExample -Pmain=CLASS
 ```
 `CLASS` must be the complete name of the class containing the main
 method (namely, `package.Class`, not just `Class`).
