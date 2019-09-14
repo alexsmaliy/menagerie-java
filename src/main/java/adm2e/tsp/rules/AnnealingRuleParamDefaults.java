@@ -13,11 +13,11 @@ public final class AnnealingRuleParamDefaults {
     // (within a certain relative tolerance) before we declare the search done.
     public static final int MAX_CONSECUTIVE_SAME_CURRENT_COST = 5;
     // Not configurable via the command line. The initial temperature of the system.
-    public static final double INITIAL_TEMPERATURE = 1.0;
+    public static final double DEFAULT_INITIAL_TEMPERATURE = 1.0;
     // Not configurable via the command line. The temp of the system is reduced by this
     // multiplicative factor after CONSECUTIVE_ACCEPTS_BEFORE_TEMP_REDUCED consecutive
     // successful moves.
-    public static final double TEMP_REDUCTION_FACTOR = 0.5;
+    public static final double DEFAULT_TEMP_REDUCTION_FACTOR = 0.5;
     // Not configurable via the command line. The solver stops iterating if temperature
     // falls below this threshold.
     public static final double TEMP_LOWER_THRESHOLD = 16.0 * Double.MIN_VALUE;

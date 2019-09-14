@@ -40,14 +40,20 @@ public abstract class SettingsForMode {
 
         private final int reduceTempAfter;
         private final int stopAfter;
+        private final double initTemp;
+        private final double coolFactor;
 
         Annealing(int numTrials,
                   Path inputFile,
                   int reduceTempAfter,
-                  int stopAfter) {
+                  int stopAfter,
+                  double initTemp,
+                  double coolFactor) {
             super(numTrials, inputFile);
             this.reduceTempAfter = reduceTempAfter;
             this.stopAfter = stopAfter;
+            this.initTemp = initTemp;
+            this.coolFactor = coolFactor;
         }
 
         int getReduceTempAfter() {
@@ -56,6 +62,14 @@ public abstract class SettingsForMode {
 
         int getStopAfter() {
             return this.stopAfter;
+        }
+
+        double getInitTemp() {
+            return this.initTemp;
+        }
+
+        double getCoolFactor() {
+            return this.coolFactor;
         }
 
         @Override

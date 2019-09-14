@@ -14,6 +14,10 @@ public class DecisionRuleBuilder {
     }
 
     Supplier<DecisionRule> buildFrom(SettingsForMode.Annealing settings) {
-        return () -> new AnnealingRule(settings.getReduceTempAfter(), settings.getStopAfter());
+        return () -> new AnnealingRule(
+            settings.getReduceTempAfter(),
+            settings.getStopAfter(),
+            settings.getInitTemp(),
+            settings.getCoolFactor());
     }
 }

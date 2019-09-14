@@ -18,6 +18,7 @@ public final class AnnealingRule implements DecisionRule {
     // parameters for this instance
     private final int consecutiveAcceptsBeforeTempReduced;
     private final int maxConsecutiveSameCurrentCost;
+    private final double coolingRate;
 
     // state
     private final Random random = ThreadLocalRandom.current();
@@ -27,10 +28,13 @@ public final class AnnealingRule implements DecisionRule {
     private int consecutiveSameCurrentCost;
 
     public AnnealingRule(int consecutiveAcceptsBeforeTempReduced,
-                          int maxConsecutiveSameCurrentCost) {
+                         int maxConsecutiveSameCurrentCost,
+                         double initialTemperature,
+                         double coolingRate) {
         this.consecutiveAcceptsBeforeTempReduced = consecutiveAcceptsBeforeTempReduced;
         this.maxConsecutiveSameCurrentCost = maxConsecutiveSameCurrentCost;
-        this.currentTemperature = AnnealingRuleParamDefaults.INITIAL_TEMPERATURE;
+        this.currentTemperature = initialTemperature;
+        this.coolingRate = coolingRate;
         this.consecutiveAccepts = 0;
         this.lastSeenCurrentCost = Double.MAX_VALUE;
         this.consecutiveSameCurrentCost = 0;
@@ -48,7 +52,7 @@ public final class AnnealingRule implements DecisionRule {
             if (consecutiveAccepts > consecutiveAcceptsBeforeTempReduced) {
                 System.out.println("Reducing temperature!");
                 consecutiveAccepts = 0;
-                currentTemperature = currentTemperature * AnnealingRuleParamDefaults.TEMP_REDUCTION_FACTOR;
+                currentTemperature = currentTemperature * coolingRate;
             }
             return ACCEPT;
         } else {

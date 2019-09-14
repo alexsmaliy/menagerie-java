@@ -1,7 +1,6 @@
 package adm2e.tsp.demos.ioutils;
 
 import adm2e.tsp.demos.DemoTspSolver;
-import adm2e.tsp.rules.AnnealingRuleParamDefaults;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -14,6 +13,11 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+
+import static adm2e.tsp.rules.AnnealingRuleParamDefaults.CONSECUTIVE_ACCEPTS_BEFORE_TEMP_REDUCED;
+import static adm2e.tsp.rules.AnnealingRuleParamDefaults.DEFAULT_INITIAL_TEMPERATURE;
+import static adm2e.tsp.rules.AnnealingRuleParamDefaults.MAX_CONSECUTIVE_SAME_CURRENT_COST;
+import static adm2e.tsp.rules.AnnealingRuleParamDefaults.DEFAULT_TEMP_REDUCTION_FACTOR;
 
 // The long and the short of it, commons-cli command line parsing is both verbose
 // and not very flexible. It's awkward to express that some options are required
@@ -33,7 +37,7 @@ public final class TspCommandLineParser {
     private static final Option MODE_OPTION = Option.builder()
         .argName(Arrays.stream(Heuristic.values()).map(Enum::name).collect(Collectors.joining("|")))
         .desc("the heuristic to use for finding a solution")
-        .hasArg()
+        .hasArg(true)
         .longOpt("heuristic")
         .numberOfArgs(1)
         .required(true)
@@ -42,8 +46,10 @@ public final class TspCommandLineParser {
 
     private static final Option ANNEALING_OPTION_REDUCE_TEMP_AFTER = Option.builder("r")
         .argName("num")
-        .desc("reduce temperature after this many consecutively accepted state transitions")
-        .hasArg()
+        .desc(String.format(
+            "reduce temperature after this many consecutively accepted state transitions (default: %d)",
+            CONSECUTIVE_ACCEPTS_BEFORE_TEMP_REDUCED))
+        .hasArg(true)
         .longOpt("reduce-after")
         .numberOfArgs(1)
         .required(false)
@@ -52,9 +58,35 @@ public final class TspCommandLineParser {
 
     private static final Option ANNEALING_OPTION_STOP_AFTER = Option.builder("s")
         .argName("num")
-        .desc("stop after this many consecutive iterations with no improvement in cost")
-        .hasArg()
+        .desc(String.format(
+            "stop after this many consecutive iterations with no improvement in cost (default: %d)",
+            MAX_CONSECUTIVE_SAME_CURRENT_COST))
+        .hasArg(true)
         .longOpt("stop-after")
+        .numberOfArgs(1)
+        .required(false)
+        .type(Number.class)
+        .build();
+
+    private static final Option ANNEALING_MODE_INITIAL_TEMP = Option.builder("i")
+        .argName("num")
+        .desc(String.format(
+            "starting system temperature (default: %.1f)",
+            DEFAULT_INITIAL_TEMPERATURE))
+        .hasArg(true)
+        .longOpt("init-temp")
+        .numberOfArgs(1)
+        .required(false)
+        .type(Number.class)
+        .build();
+
+    private static final Option ANNEALING_MODE_TEMP_REDUCTION_FACTOR = Option.builder("c")
+        .argName("num")
+        .desc(String.format(
+            "0 < num < 1, the geometric \"cooling rate\" of the system (default: %.1f)",
+            DEFAULT_TEMP_REDUCTION_FACTOR))
+        .hasArg(true)
+        .longOpt("cool-rate")
         .numberOfArgs(1)
         .required(false)
         .type(Number.class)
@@ -63,7 +95,7 @@ public final class TspCommandLineParser {
     private static final Option NUM_TRIALS_OPTION = Option.builder("n")
         .argName("num")
         .desc("the number of trials to run")
-        .hasArg()
+        .hasArg(true)
         .longOpt("num-trials")
         .numberOfArgs(1)
         .required(true)
@@ -81,6 +113,8 @@ public final class TspCommandLineParser {
         options.addOption(MODE_OPTION);
         options.addOption(ANNEALING_OPTION_REDUCE_TEMP_AFTER);
         options.addOption(ANNEALING_OPTION_STOP_AFTER);
+        options.addOption(ANNEALING_MODE_INITIAL_TEMP);
+        options.addOption(ANNEALING_MODE_TEMP_REDUCTION_FACTOR);
         options.addOption(NUM_TRIALS_OPTION);
         return options;
     }
@@ -104,30 +138,41 @@ public final class TspCommandLineParser {
                 case GREEDY:
                     try {
                         CommandLine secondPass = DEFAULT_PARSER.parse(getGreedyModeOptions(), args, false);
-                        int numTrials = (int) (secondPass.hasOption(NUM_TRIALS_OPTION.getOpt())
-                            ? (long) secondPass.getParsedOptionValue(NUM_TRIALS_OPTION.getOpt())
-                            : DEFAULT_NUM_TRIALS);
+                        int numTrials = getAsInt(secondPass, NUM_TRIALS_OPTION, DEFAULT_NUM_TRIALS);
                         Path inputFile = new File(secondPass.getArgs()[0]).toPath();
                         return new SettingsForMode.Greedy(numTrials, inputFile);
-                    } catch (ParseException e) {
+                    } catch (ParseException | ArrayIndexOutOfBoundsException e) {
                         greedyModeUsage();
                         return null;
                     }
                 case ANNEALING:
                     try {
                         CommandLine secondPass = DEFAULT_PARSER.parse(getAnnealingModeOptions(), args, false);
-                        int numTrials = (int) (secondPass.hasOption(NUM_TRIALS_OPTION.getOpt())
-                            ? (long) secondPass.getParsedOptionValue(NUM_TRIALS_OPTION.getOpt())
-                            : DEFAULT_NUM_TRIALS);
-                        int reduceTempAfter = (int) (secondPass.hasOption(ANNEALING_OPTION_REDUCE_TEMP_AFTER.getOpt())
-                            ? (long) secondPass.getParsedOptionValue(ANNEALING_OPTION_REDUCE_TEMP_AFTER.getOpt())
-                            : AnnealingRuleParamDefaults.CONSECUTIVE_ACCEPTS_BEFORE_TEMP_REDUCED);
-                        int stopAfter = (int) (secondPass.hasOption(ANNEALING_OPTION_STOP_AFTER.getOpt())
-                            ? (long) secondPass.getParsedOptionValue(ANNEALING_OPTION_STOP_AFTER.getOpt())
-                            : AnnealingRuleParamDefaults.MAX_CONSECUTIVE_SAME_CURRENT_COST);
+                        int numTrials = getAsInt(
+                            secondPass,
+                            NUM_TRIALS_OPTION,
+                            DEFAULT_NUM_TRIALS);
+                        int reduceTempAfter = getAsInt(
+                            secondPass,
+                            ANNEALING_OPTION_REDUCE_TEMP_AFTER,
+                            CONSECUTIVE_ACCEPTS_BEFORE_TEMP_REDUCED);
+                        int stopAfter = getAsInt(
+                            secondPass,
+                            ANNEALING_OPTION_STOP_AFTER,
+                            MAX_CONSECUTIVE_SAME_CURRENT_COST);
+                        double initTemp = getAsDouble(
+                            secondPass,
+                            ANNEALING_MODE_INITIAL_TEMP,
+                            DEFAULT_INITIAL_TEMPERATURE);
+                        double coolFactor = getAsDouble(
+                            secondPass,
+                            ANNEALING_MODE_TEMP_REDUCTION_FACTOR,
+                            DEFAULT_TEMP_REDUCTION_FACTOR);
                         Path inputFile = new File(secondPass.getArgs()[0]).toPath();
-                        return new SettingsForMode.Annealing(numTrials, inputFile, reduceTempAfter, stopAfter);
-                    } catch (ParseException e) {
+                        return new SettingsForMode.Annealing(
+                            numTrials, inputFile, reduceTempAfter,
+                            stopAfter, initTemp, coolFactor);
+                    } catch (ParseException | ArrayIndexOutOfBoundsException e) {
                         annealingModeUsage();
                         return null;
                     }
@@ -136,6 +181,22 @@ public final class TspCommandLineParser {
             modeSelectUsage();
         }
         return null;
+    }
+
+    private static int getAsInt(CommandLine cli, Option option, int defaultValue)
+        throws ParseException {
+        String flag = option.getOpt() == null ? option.getLongOpt() : option.getOpt();
+        return cli.hasOption(flag)
+            ? ((Number) cli.getParsedOptionValue(flag)).intValue()
+            : defaultValue;
+    }
+
+    private static double getAsDouble(CommandLine cli, Option option, double defaultValue)
+        throws ParseException {
+        String flag = option.getOpt() == null ? option.getLongOpt() : option.getOpt();
+        return cli.hasOption(flag)
+            ? ((Number) cli.getParsedOptionValue(flag)).doubleValue()
+            : defaultValue;
     }
 
     private static void modeSelectUsage() {
@@ -176,6 +237,8 @@ public final class TspCommandLineParser {
         tempOptions.addOption(NUM_TRIALS_OPTION);
         tempOptions.addOption(ANNEALING_OPTION_REDUCE_TEMP_AFTER);
         tempOptions.addOption(ANNEALING_OPTION_STOP_AFTER);
+        tempOptions.addOption(ANNEALING_MODE_INITIAL_TEMP);
+        tempOptions.addOption(ANNEALING_MODE_TEMP_REDUCTION_FACTOR);
         HELP_FORMATTER.printHelp(
             120, // width
             command,
