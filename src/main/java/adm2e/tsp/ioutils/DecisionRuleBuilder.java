@@ -1,4 +1,4 @@
-package adm2e.tsp.demos.ioutils;
+package adm2e.tsp.ioutils;
 
 import adm2e.tsp.rules.AnnealingRule;
 import adm2e.tsp.rules.DecisionRule;

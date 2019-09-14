@@ -1,9 +1,8 @@
-package adm2e.tsp.demos;
+package adm2e.tsp;
 
-import adm2e.tsp.HeuristicTspSolver;
-import adm2e.tsp.demos.ioutils.DecisionRuleBuilder;
-import adm2e.tsp.demos.ioutils.SettingsForMode;
-import adm2e.tsp.demos.ioutils.TspCommandLineParser;
+import adm2e.tsp.ioutils.DecisionRuleBuilder;
+import adm2e.tsp.ioutils.SettingsForMode;
+import adm2e.tsp.ioutils.TspCommandLineParser;
 import adm2e.tsp.representations.TspSolution;
 import adm2e.tsp.rules.DecisionRule;
 
@@ -16,11 +15,11 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static adm2e.tsp.demos.ioutils.TspIoUtils.buildEdgeWeightMatrix;
-import static adm2e.tsp.demos.ioutils.TspIoUtils.processLines;
-import static adm2e.tsp.demos.ioutils.TspIoUtils.readRawInput;
+import static adm2e.tsp.ioutils.TspIoUtils.buildEdgeWeightMatrix;
+import static adm2e.tsp.ioutils.TspIoUtils.processLines;
+import static adm2e.tsp.ioutils.TspIoUtils.readRawInput;
 
-public class DemoTspSolver {
+public class Demo {
 
     public static void main(String[] args) throws IOException {
         // Parse command line.

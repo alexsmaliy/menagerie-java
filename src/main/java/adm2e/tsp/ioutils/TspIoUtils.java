@@ -1,4 +1,4 @@
-package adm2e.tsp.demos.ioutils;
+package adm2e.tsp.ioutils;
 
 import java.io.IOException;
 import java.nio.file.Files;

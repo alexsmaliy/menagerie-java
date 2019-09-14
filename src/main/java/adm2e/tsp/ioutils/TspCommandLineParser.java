@@ -1,6 +1,6 @@
-package adm2e.tsp.demos.ioutils;
+package adm2e.tsp.ioutils;
 
-import adm2e.tsp.demos.DemoTspSolver;
+import adm2e.tsp.Demo;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -200,7 +200,7 @@ public final class TspCommandLineParser {
     }
 
     private static void modeSelectUsage() {
-        String command = DemoTspSolver.class.getName() + " INPUT_FILE";
+        String command = Demo.class.getName() + " INPUT_FILE";
         HELP_FORMATTER.printHelp(
             120, // width
             command,
@@ -211,7 +211,7 @@ public final class TspCommandLineParser {
     }
 
     private static void greedyModeUsage() {
-        String command = DemoTspSolver.class.getName()
+        String command = Demo.class.getName()
             + " INPUT_FILE --"
             + MODE_OPTION.getLongOpt()
             + " "
@@ -228,7 +228,7 @@ public final class TspCommandLineParser {
     }
 
     private static void annealingModeUsage() {
-        String command = DemoTspSolver.class.getName()
+        String command = Demo.class.getName()
             + " INPUT_FILE --"
             + MODE_OPTION.getLongOpt()
             + " "
