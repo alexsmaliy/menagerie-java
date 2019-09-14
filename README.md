@@ -41,7 +41,7 @@ albeit with a little ceremony. From the root of the repo, execute
 method (namely, `package.Class`, not just `Class`).
 
 Command line arguments can be supplied to demo programs using the
-syntax `--args '-foo -bar -baz qux'`.
+syntax `--args='-foo -bar -baz qux'`.
 
 You can also pass JVM arguments, separated with spaces, using
 `-PjvmArgs='-Dfoo -Xbar`. Suggestions: `-Xms###m` and `-Xmx###m` for
