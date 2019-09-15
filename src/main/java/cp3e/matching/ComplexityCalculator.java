@@ -4,19 +4,21 @@ import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.util.stream.IntStream;
 
+// Prints a table of the time complexity of an exhaustive search for perfect matching solutions.
+// The main method doesn't expect any arguments.
 public class ComplexityCalculator {
     private static final String FORMAT_STRING = "%10s%26s%24s%16s";
+    private static final NumberFormat NUMBER_FORMATTER = NumberFormat.getIntegerInstance();
 
     public static void main(String[] args) {
         System.out.println(String.format(FORMAT_STRING,
             "NUM POINTS", "ORDERED (n!)", "IGNORE WITHIN PAIRS", "IGNORE ALL"));
-        NumberFormat formatter = NumberFormat.getIntegerInstance();
         IntStream.rangeClosed(2, 20).filter(i -> i % 2 == 0).forEach(i ->
             System.out.println(String.format(FORMAT_STRING,
                 i,
-                formatter.format(factorial(i)),
-                formatter.format(ignoringOrderWithinEachPair(i)),
-                formatter.format(ignoringOrderWithinAndAmongPairs(i))))
+                NUMBER_FORMATTER.format(factorial(i)),
+                NUMBER_FORMATTER.format(ignoringOrderWithinEachPair(i)),
+                NUMBER_FORMATTER.format(ignoringOrderWithinAndAmongPairs(i))))
         );
     }
 
@@ -33,7 +35,6 @@ public class ComplexityCalculator {
     }
 
     private static BigInteger ignoringOrderWithinAndAmongPairs(int n) {
-        BigInteger ret = ignoringOrderWithinEachPair(n);
-        return ret.divide(factorial(n/2));
+        return ignoringOrderWithinEachPair(n).divide(factorial(n/2));
     }
 }
