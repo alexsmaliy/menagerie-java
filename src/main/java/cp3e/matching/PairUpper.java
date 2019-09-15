@@ -58,22 +58,22 @@ public final class PairUpper {
 
     private Stream<int[]> pairUp() {
         int[] initialIndexes = IntStream.range(0, points.length).toArray();
-        return pairUp(initialIndexes, 0, points.length);
+        int[] emptyPrefix = new int[points.length];
+        return pairUp(emptyPrefix, initialIndexes, 0, points.length);
     }
 
     // Each int[] is a full pairing and has a length equal to the number of points.
     // Successive pairs of entries are, implicitly, indexes of paired points,
     // namely, { p0_0, p0_1, p1_0, p1_1, p2_0, ... }. At a depth of N, this method
     // sets the N-th pair at indexes (N * 2) and (N * 2 + 1).
-    private static Stream<int[]> pairUp(int[] indexes, int depth, int numPoints) {
-        if (indexes.length == 0) {
-            return Stream.empty();
-        } else if (indexes.length == 2) {
-            int[] pairs = new int[numPoints];
-            Arrays.fill(pairs, -1);
-            pairs[depth * 2] = indexes[0];
-            pairs[depth * 2 + 1] = indexes[1];
-            return Stream.of(pairs);
+    private static Stream<int[]> pairUp(int[] prefix, int[] remainingIndexes, int depth, int numPoints) {
+        if (remainingIndexes.length == 0) {
+            return Stream.of(Arrays.copyOf(prefix, numPoints));
+        } else if (remainingIndexes.length == 2) {
+            int[] completedPairing = Arrays.copyOf(prefix, numPoints);
+            completedPairing[depth * 2] = remainingIndexes[0];
+            completedPairing[depth * 2 + 1] = remainingIndexes[1];
+            return Stream.of(completedPairing);
         } else {
             // This is the non-trivial case. We build every pair between the first remaining
             // index and every other remaining index. For each choice of pair, we exclude the
@@ -84,20 +84,20 @@ public final class PairUpper {
             // both [1, 2] and [3, 4] at depth 0, we then build both complements at depth 1 and
             // end up with two equivalent pairings, [[1, 2], [3, 4]] and [[3, 4], [1, 2]].
             Stream<int[]> pairings = Stream.empty();
-            for (int i = 1; i < indexes.length; i++) {
-                int[] newIndexes = new int[indexes.length - 2];
-                for (int j = 1, k = 0; j < indexes.length; j++) {
+            for (int i = 1; i < remainingIndexes.length; i++) {
+                int[] newIndexes = new int[remainingIndexes.length - 2];
+                for (int j = 1, k = 0; j < remainingIndexes.length; j++) {
                     if (j != i) {
-                        newIndexes[k++] = indexes[j];
+                        newIndexes[k++] = remainingIndexes[j];
                     }
                 }
-                final int p1 = indexes[0];
-                final int p2 = indexes[i];
-                Stream<int[]> partialPairings = pairUp(newIndexes, depth + 1, numPoints);
-                partialPairings = partialPairings.peek(pairing -> {
-                    pairing[depth * 2] = p1;
-                    pairing[depth * 2 + 1] = p2;
-                });
+                int[] prefixCopy = Arrays.copyOf(prefix, numPoints);
+                final int p1 = remainingIndexes[0];
+                final int p2 = remainingIndexes[i];
+                prefixCopy[depth * 2] = p1;
+                prefixCopy[depth * 2 + 1] = p2;
+                Stream<int[]> partialPairings = pairUp(prefixCopy, newIndexes, depth + 1, numPoints);
+                // Somewhat remarkably, concatenating using Stream.concat() makes this 3x slower.
                 pairings = Stream.of(pairings, partialPairings).flatMap(x -> x);
             }
             return pairings;
