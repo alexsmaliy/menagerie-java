@@ -83,8 +83,7 @@ public final class PairUpper {
             // build only [1, 2] at depth 0, the only choice is [3, 4] at depth 1. If we build
             // both [1, 2] and [3, 4] at depth 0, we then build both complements at depth 1 and
             // end up with two equivalent pairings, [[1, 2], [3, 4]] and [[3, 4], [1, 2]].
-            Stream<int[]> pairings = Stream.empty();
-            for (int i = 1; i < remainingIndexes.length; i++) {
+            return IntStream.range(1, remainingIndexes.length).mapToObj(i -> {
                 int[] newIndexes = new int[remainingIndexes.length - 2];
                 for (int j = 1, k = 0; j < remainingIndexes.length; j++) {
                     if (j != i) {
@@ -96,11 +95,8 @@ public final class PairUpper {
                 final int p2 = remainingIndexes[i];
                 prefixCopy[depth * 2] = p1;
                 prefixCopy[depth * 2 + 1] = p2;
-                Stream<int[]> partialPairings = pairUp(prefixCopy, newIndexes, depth + 1, numPoints);
-                // Somewhat remarkably, concatenating using Stream.concat() makes this 3x slower.
-                pairings = Stream.of(pairings, partialPairings).flatMap(x -> x);
-            }
-            return pairings;
+                return pairUp(prefixCopy, newIndexes, depth + 1, numPoints);
+            }).flatMap(s -> s);
         }
     }
 }
