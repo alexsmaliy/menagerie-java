@@ -9,6 +9,7 @@ repositories {
 }
 
 dependencies {
+    api 'trove:trove:2.1.1'
     implementation 'commons-cli:commons-cli:1.4'
     testImplementation 'junit:junit:4.12'
 }
