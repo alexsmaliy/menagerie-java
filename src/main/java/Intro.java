@@ -1,5 +1,3 @@
-import java.util.Arrays;
-
 public class Intro {
     public static void main(String[] args) {
         System.out.println(
@@ -7,6 +5,5 @@ public class Intro {
                 + " without specifying a main class. "
                 + "You can pass the main class name with"
                 + " `gradlew runExample -PmainClass=<FULL CLASS NAME>`.");
-        System.out.println(Arrays.toString(args));
     }
 }
