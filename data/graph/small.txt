@@ -1,0 +1,12 @@
+A -> B
+B -> C
+C -> D
+E <- D
+C <- E
+E -> I
+E -> F
+F -> G
+G -> H
+H -> I
+I -> A
+I -> J
