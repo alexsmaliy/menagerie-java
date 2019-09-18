@@ -8,4 +8,5 @@ book has a related website: [algorist.com](http://www.algorist.com/).
 Contents
 --------
 
+- [Graph traversal (path search, connected components, etc.)](./graph)
 - [Traveling Salesman Problem](./tsp)
