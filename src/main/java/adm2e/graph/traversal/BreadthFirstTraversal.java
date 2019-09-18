@@ -12,6 +12,8 @@ import java.util.function.IntPredicate;
 public final class BreadthFirstTraversal {
     private static final IntPredicate NEVER_STOP = i -> false;
 
+    private BreadthFirstTraversal() { /* static */ }
+
     /**
      * Traverses the graph breadth-first, exhaustively. The edge consumer is called with
      * every &lt;x, y&gt; edge whenever neither x nor y have been visited yet.
@@ -59,7 +61,7 @@ public final class BreadthFirstTraversal {
         toVisit.add(startingVertex);
         traverse(
             graph,
-            getDefaultVisitTracker(numVertices),
+            visitTracker,
             toVisit,
             edgeConsumer,
             stoppingCondition);
@@ -90,7 +92,10 @@ public final class BreadthFirstTraversal {
         } while (!toVisit.isEmpty() && !stop);
     }
 
-    private static VisitTracker getDefaultVisitTracker(int numVertices) {
+    /**
+     * Default visit tracker starts with every vertex unvisited.
+     */
+    public static VisitTracker getDefaultVisitTracker(int numVertices) {
         boolean[] wasVisited = new boolean[numVertices];
         return new VisitTracker() {
             @Override
