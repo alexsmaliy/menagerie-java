@@ -5,7 +5,6 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,9 +43,5 @@ public class AdjacencyListGraph {
     public Optional<String> labelOfVertex(int vertex) {
         if (vertex < 0 || vertex >= numVertices()) return Optional.empty();
         return Optional.of(keyToLabel.get(vertex));
-    }
-
-    public Iterator<TIntArrayList> vertexIterator() {
-        return edges.iterator();
     }
 }
