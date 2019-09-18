@@ -9,6 +9,7 @@ import gnu.trove.set.hash.TIntHashSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 public class AdjacencyListGraph implements DirectedGraph {
     private final List<TIntArrayList> edges;
@@ -47,6 +48,15 @@ public class AdjacencyListGraph implements DirectedGraph {
     @Override
     public Optional<String> labelOfVertex(int vertex) {
         return Optional.ofNullable(keyToLabel.get(vertex));
+    }
+
+    @Override
+    public OptionalInt indexForLabel(String label) {
+        if (labelToKey.containsKey(label)) {
+            return OptionalInt.of(labelToKey.get(label));
+        } else {
+            return OptionalInt.empty();
+        }
     }
 
     @Override
