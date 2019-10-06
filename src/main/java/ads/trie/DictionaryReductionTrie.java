@@ -4,14 +4,14 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
-import java.util.Queue;
 
-public final class DictionaryReductionTrie {
+public final class DictionaryReductionTrie implements Trie {
 
     private DictionaryReductionTrie t;
     private DictionaryReductionTrie f;
-    int maxDepth;
+    private int maxDepth;
 
     public boolean insert(String s) {
         boolean[] b = reduce(s);
@@ -38,15 +38,22 @@ public final class DictionaryReductionTrie {
     }
 
     public boolean removeExactMatch(String s) {
-        boolean[] b = reduce(s);
+        return removeInternal(reduce(s), 0);
+    }
+
+    public boolean removeByPrefix(String prefix) {
+        return removeInternal(reduce(prefix), 8);
+    }
+
+    private boolean removeInternal(boolean[] b, int ignoredSuffixLength) {
         DictionaryReductionTrie trie = this;
         DictionaryReductionTrie deletionCandidate = this;
         List<DictionaryReductionTrie> path = new ArrayList<>();
         path.add(this);
         boolean deletionDirection = b[0];
-        for (int i = 0; i < b.length; i++) {
+        for (int i = 0; i < b.length - ignoredSuffixLength; i++) {
             if (b[i]) {
-                // trie does not contain value to delete
+                // The trie does not contain the value to delete.
                 if (trie.t == null) return false;
                 if (trie.f != null) {
                     deletionCandidate = trie;
@@ -55,7 +62,7 @@ public final class DictionaryReductionTrie {
                 path.add(trie);
                 trie = trie.t;
             } else {
-                // trie does not contain value to delete
+                // The trie does not contain the value to delete.
                 if (trie.f == null) return false;
                 if (trie.t != null) {
                     deletionCandidate = trie;
@@ -122,13 +129,13 @@ public final class DictionaryReductionTrie {
         return ret;
     }
 
-    // Generate all suffixes of a node using simple DFS using a LIFO queue.
+    // Generate all suffixes of a node using simple DFS using a FIFO queue.
     // Since node values are not distinct (namely, only true and false),
     // we store lists of the nodes themselves as we traverse them. Lists
     // are ultimately translated into boolean arrays, and then remapped
     // back to strings by the caller.
     private static boolean[][] dfs(DictionaryReductionTrie trie) {
-        Queue<List<DictionaryReductionTrie>> q = new ArrayDeque<>();
+        Deque<List<DictionaryReductionTrie>> q = new ArrayDeque<>();
         List<List<DictionaryReductionTrie>> suffixes = new ArrayList<>();
 
         // We start the queue with the root node that the caller provided.
@@ -155,13 +162,13 @@ public final class DictionaryReductionTrie {
             if (t.t != null) {
                 List<DictionaryReductionTrie> newCandidate = new ArrayList<>(candidate);
                 newCandidate.add(t.t);
-                q.add(newCandidate);
+                q.addFirst(newCandidate);
             }
             // Same for the scenario when there is an `f` child.
             if (t.f != null) {
                 List<DictionaryReductionTrie> newCandidate = new ArrayList<>(candidate);
                 newCandidate.add(t.f);
-                q.add(newCandidate);
+                q.addFirst(newCandidate);
             }
         }
 
@@ -203,28 +210,30 @@ public final class DictionaryReductionTrie {
     }
 
     private static boolean[] reduce(String s) {
-        boolean[] ret = new boolean[s.length() * 8 + 8];
+        int sl8 = s.length() * 8;
+        boolean[] ret = new boolean[sl8 + 8];
         // Translate each char to 8 booleans.
         for (int i = 0; i < s.length(); i++) {
             char si = s.charAt(i);
-            ret[i * 8    ] = (si &   1) != 0;
-            ret[i * 8 + 1] = (si &   2) != 0;
-            ret[i * 8 + 2] = (si &   4) != 0;
-            ret[i * 8 + 3] = (si &   8) != 0;
-            ret[i * 8 + 4] = (si &  16) != 0;
-            ret[i * 8 + 5] = (si &  32) != 0;
-            ret[i * 8 + 6] = (si &  64) != 0;
-            ret[i * 8 + 7] = (si & 128) != 0;
+            int i8 = i * 8;
+            ret[i8    ] = (si &   1) != 0;
+            ret[i8 + 1] = (si &   2) != 0;
+            ret[i8 + 2] = (si &   4) != 0;
+            ret[i8 + 3] = (si &   8) != 0;
+            ret[i8 + 4] = (si &  16) != 0;
+            ret[i8 + 5] = (si &  32) != 0;
+            ret[i8 + 6] = (si &  64) != 0;
+            ret[i8 + 7] = (si & 128) != 0;
         }
         // Terminate string with `\0`.
-        ret[s.length() * 8    ] = false;
-        ret[s.length() * 8 + 1] = false;
-        ret[s.length() * 8 + 2] = false;
-        ret[s.length() * 8 + 3] = false;
-        ret[s.length() * 8 + 4] = false;
-        ret[s.length() * 8 + 5] = false;
-        ret[s.length() * 8 + 6] = false;
-        ret[s.length() * 8 + 7] = false;
+        ret[sl8    ] = false;
+        ret[sl8 + 1] = false;
+        ret[sl8 + 2] = false;
+        ret[sl8 + 3] = false;
+        ret[sl8 + 4] = false;
+        ret[sl8 + 5] = false;
+        ret[sl8 + 6] = false;
+        ret[sl8 + 7] = false;
         return ret;
     }
 
@@ -233,15 +242,16 @@ public final class DictionaryReductionTrie {
         // Ignore the final `\0` char that `reduce()` introduces.
         char[] c = new char[numChars - 1];
         for (int i = 0; i < numChars - 1; i++) {
+            int i8 = i * 8;
             c[i] = (char) (
-                  (b[i * 8    ] ?   1 : 0)
-                + (b[i * 8 + 1] ?   2 : 0)
-                + (b[i * 8 + 2] ?   4 : 0)
-                + (b[i * 8 + 3] ?   8 : 0)
-                + (b[i * 8 + 4] ?  16 : 0)
-                + (b[i * 8 + 5] ?  32 : 0)
-                + (b[i * 8 + 6] ?  64 : 0)
-                + (b[i * 8 + 7] ? 128 : 0)
+                  (b[i8    ] ?   1 : 0)
+                + (b[i8 + 1] ?   2 : 0)
+                + (b[i8 + 2] ?   4 : 0)
+                + (b[i8 + 3] ?   8 : 0)
+                + (b[i8 + 4] ?  16 : 0)
+                + (b[i8 + 5] ?  32 : 0)
+                + (b[i8 + 6] ?  64 : 0)
+                + (b[i8 + 7] ? 128 : 0)
             );
         }
         return String.valueOf(c);
